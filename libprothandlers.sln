@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libprothandlers", "libprothandlers\libprothandlers.vcproj", "{9D2487D1-7046-4665-9E66-8D81A9221438}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tester", "Tester\Tester.vcproj", "{463814E9-81B4-4932-A3C0-EEB495B68CFF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9D2487D1-7046-4665-9E66-8D81A9221438} = {9D2487D1-7046-4665-9E66-8D81A9221438}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D2487D1-7046-4665-9E66-8D81A9221438}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9D2487D1-7046-4665-9E66-8D81A9221438}.Debug|Win32.Build.0 = Debug|Win32
+		{9D2487D1-7046-4665-9E66-8D81A9221438}.Release|Win32.ActiveCfg = Release|Win32
+		{9D2487D1-7046-4665-9E66-8D81A9221438}.Release|Win32.Build.0 = Release|Win32
+		{463814E9-81B4-4932-A3C0-EEB495B68CFF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{463814E9-81B4-4932-A3C0-EEB495B68CFF}.Debug|Win32.Build.0 = Debug|Win32
+		{463814E9-81B4-4932-A3C0-EEB495B68CFF}.Release|Win32.ActiveCfg = Release|Win32
+		{463814E9-81B4-4932-A3C0-EEB495B68CFF}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
