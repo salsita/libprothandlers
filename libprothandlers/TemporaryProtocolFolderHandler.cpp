@@ -64,13 +64,18 @@ HRESULT CTemporaryProtocolFolderHandler::InitializeRequest(
 STDMETHODIMP CTemporaryProtocolFolderHandler::Read(
   void *pv, ULONG cb, ULONG *pcbRead)
 {
-  // simply forward to file
   DWORD bytesRead = 0;
-  if (!pcbRead)
+  HRESULT hr = m_File.Read(pv, cb, bytesRead);
+  if (pcbRead)
   {
-    pcbRead = &bytesRead;
+    (*pcbRead) = bytesRead;
   }
-  return m_File.Read(pv, cb, *pcbRead);
+  if (FAILED(hr)) {
+    return hr;
+  }
+  return (0 == bytesRead)
+    ? S_FALSE
+    : hr;
 }
 
 //---------------------------------------------------------------------------
