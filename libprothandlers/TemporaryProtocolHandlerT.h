@@ -72,13 +72,13 @@ public:
     }
 
     // parse our URL
-    CComPtr<IUri> pURI;
-    IF_FAILED_RET(::CreateUri(szUrl, Uri_CREATE_CANONICALIZE, 0, &pURI));
+    m_URI.Release();
+    IF_FAILED_RET(::CreateUri(szUrl, Uri_CREATE_CANONICALIZE, 0, &m_URI));
 
     CComBSTR bs;
 
     // get and check scheme
-    IF_FAILED_RET(pURI->GetSchemeName(&bs));
+    IF_FAILED_RET(m_URI->GetSchemeName(&bs));
     if (!m_pFactory->CheckScheme(bs))
     {
       return INET_E_INVALID_URL;  // not our protocol, don't translate
@@ -86,7 +86,7 @@ public:
 
     // get and check host name
     bs.Empty();
-    IF_FAILED_RET(pURI->GetHost(&bs));
+    IF_FAILED_RET(m_URI->GetHost(&bs));
 
     // prepare request: check and get host info
     if (!m_pFactory->GetResourceInfo(bs, m_HostInfo))
@@ -97,12 +97,12 @@ public:
     // get path
     CStringW sPath, sExtension;
     bs.Empty();
-    IF_FAILED_RET(pURI->GetPath(&bs));
+    IF_FAILED_RET(m_URI->GetPath(&bs));
     sPath = bs;
 
     // get extension
     bs.Empty();
-    IF_FAILED_RET(pURI->GetExtension(&bs));
+    IF_FAILED_RET(m_URI->GetExtension(&bs));
     sExtension = bs;
 
     // unescape path
@@ -175,6 +175,9 @@ public:
     {
       return E_UNEXPECTED;
     }
+    if (!m_URI) {
+      CreateUri(pwzUrl, Uri_CREATE_CANONICALIZE, 0, &m_URI);
+    }
     switch(ParseAction)
     {
       case PARSE_SECURITY_URL:
@@ -185,42 +188,42 @@ public:
           // determine the security to apply here (for preventing XSS etc). It
           // expects ParseURL to return a string: 'scheme:host'.
           // http://msdn.microsoft.com/en-us/library/ms775138%28v=vs.85%29.aspx
-          // parse our URL
-          CComPtr<IUri> pURI;
-          IF_FAILED_RET(::CreateUri(pwzUrl, Uri_CREATE_CANONICALIZE, 0, &pURI));
-
           CComBSTR bsScheme, bsHost;
 
           // get and check scheme
-          IF_FAILED_RET(pURI->GetSchemeName(&bsScheme));
+          IF_FAILED_RET(m_URI->GetSchemeName(&bsScheme));
           if (!m_pFactory->CheckScheme(bsScheme))
           {
             return INET_E_DEFAULT_ACTION;  // not our protocol
           }
 
           // get and check host name
-          IF_FAILED_RET(pURI->GetHost(&bsHost));
+          IF_FAILED_RET(m_URI->GetHost(&bsHost));
           HI hostInfo;
           if (!m_pFactory->GetResourceInfo(bsHost, hostInfo))
           {
             return INET_E_DEFAULT_ACTION;  // not our host
           }
 
-          CStringW sMyURL;
-          sMyURL.Format(_T("%s:%s"), bsScheme, bsHost);
-          DWORD len = sMyURL.GetLength();
-          if (cchResult < (len+1))
-          {
-            // not enough room to swing a cat here..
-            return S_FALSE;
-          }
-          wcscpy_s(pwzResult, cchResult, sMyURL.GetBuffer(len+1));
-          if (pcchResult)
-          {
-            *pcchResult = len;
-          }
-          // return string "protocol:host" to security manager
-          return S_OK;
+          // compose final string
+          bsScheme += L":";
+          bsScheme += bsHost;
+          return CopyResultString(bsScheme, pwzResult, cchResult, pcchResult);
+        }
+        break;
+      case PARSE_SCHEMA:
+        {
+          CComBSTR bs;
+          IF_FAILED_RET(m_URI->GetSchemeName(&bs));
+          return CopyResultString(bs, pwzResult, cchResult, pcchResult);
+        }
+        break;
+      case PARSE_SITE:
+      case PARSE_DOMAIN:
+        {
+          CComBSTR bs;
+          IF_FAILED_RET(m_URI->GetHost(&bs));
+          return CopyResultString(bs, pwzResult, cchResult, pcchResult);
         }
         break;
     }
@@ -298,6 +301,26 @@ protected:
     return TRUE;
   }
 
+  //-------------------------------------------------------------------------
+  // Utility method for ParseUrl: Copy a result string. Arg names are left
+  // to fit ParseUrl arguments.
+  HRESULT CopyResultString(const BSTR aSource, LPWSTR pwzResult, const DWORD cchResult,
+      DWORD *pcchResult)
+  {
+    DWORD len = SysStringLen(aSource);
+    if (cchResult < (len+1))
+    {
+      // not enough room to swing a cat here..
+      return S_FALSE;
+    }
+    wcscpy_s(pwzResult, cchResult, aSource);
+    if (pcchResult)
+    {
+      *pcchResult = len;
+    }
+    return S_OK;
+  }
+
 protected:
   // Our classfactory. A safepointer would fail to compile, it does not
   // know how to cast this to IUnknown*. So we use a raw pointer.
@@ -305,5 +328,5 @@ protected:
 
   // current HostInfo
   HI  m_HostInfo;
-
+  CComPtr<IUri> m_URI;
 };
