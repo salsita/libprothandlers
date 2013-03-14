@@ -259,6 +259,33 @@ public:
     DWORD *pcbBuf,
     DWORD dwReserved)
   {
+    if (OueryOption == QUERY_IS_SECURE || OueryOption == QUERY_IS_SAFE) {
+      if (!m_URI) {
+        CreateUri(pwzUrl, Uri_CREATE_CANONICALIZE, 0, &m_URI);
+      }
+      CComBSTR bsScheme, bsHost;
+
+      // get and check scheme
+      IF_FAILED_RET(m_URI->GetSchemeName(&bsScheme));
+      if (!m_pFactory->CheckScheme(bsScheme))
+      {
+        return INET_E_DEFAULT_ACTION;  // not our protocol
+      }
+
+      // get and check host name
+      IF_FAILED_RET(m_URI->GetHost(&bsHost));
+      HI hostInfo;
+      if (!m_pFactory->GetResourceInfo(bsHost, hostInfo))
+      {
+        return INET_E_DEFAULT_ACTION;  // not our host
+      }
+      *pcbBuf = 4;
+      if (cbBuffer < *pcbBuf) {
+        return S_FALSE;
+      }
+      *(DWORD*)pBuffer = TRUE;
+      return S_OK;
+    }
     return INET_E_DEFAULT_ACTION;
   }
 
