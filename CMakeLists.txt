@@ -23,7 +23,7 @@ set(${PROJECT_NAME}_HEADERS
   "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolResourceHandlerClassFactory.h"
   )
 
-set(${PROJECT_NAME}_SOURCES 
+set(${PROJECT_NAME}_SOURCES
   "${${PROJECT_NAME}_SRC_DIR}/ProtocolHandlerRegistrar.cpp"
   "${${PROJECT_NAME}_SRC_DIR}/stdafx.cpp"
   "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolFolderHandler.cpp"
@@ -38,6 +38,11 @@ add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_HEADERS} ${${PROJECT_NAME}_
 
 # set UNICODE
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS _UNICODE,UNICODE)
+
+# _WIN64
+if (${CMAKE_CL_64})
+  add_definitions(-DWIN64 -D_WIN64)
+endif (${CMAKE_CL_64})
 
 # exclude default libraries
 set_target_properties(${PROJECT_NAME} PROPERTIES STATIC_LIBRARY_FLAGS /NODEFAULTLIB)
