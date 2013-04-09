@@ -94,5 +94,5 @@ private:
   ULONG     m_dwSize;
 
   // Current read pos
-  ULONG     m_CurrentPos;
+  size_t    m_CurrentPos;
 };

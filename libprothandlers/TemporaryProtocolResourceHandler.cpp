@@ -90,7 +90,7 @@ STDMETHODIMP CTemporaryProtocolResourceHandler::Read(
   {
     return E_UNEXPECTED;
   }
-  ULONG sz = m_dwSize;
+  size_t sz = m_dwSize;
   if (m_CurrentPos >= sz)
   {
     return S_FALSE;
@@ -104,7 +104,7 @@ STDMETHODIMP CTemporaryProtocolResourceHandler::Read(
 
   if (cb > sz)
   {
-    cb = sz;
+    cb = (ULONG)sz;
   }
   memcpy(pv, m_lpData + m_CurrentPos, cb);
   m_CurrentPos += cb;
