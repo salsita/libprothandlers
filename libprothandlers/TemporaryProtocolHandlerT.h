@@ -252,14 +252,14 @@ public:
 
   STDMETHOD(QueryInfo)(
     LPCWSTR pwzUrl,
-    QUERYOPTION OueryOption,
+    QUERYOPTION aQueryOption,
     DWORD dwQueryFlags,
     LPVOID pBuffer,
     DWORD cbBuffer,
     DWORD *pcbBuf,
     DWORD dwReserved)
   {
-    if (OueryOption == QUERY_IS_SECURE || OueryOption == QUERY_IS_SAFE) {
+    if (aQueryOption == QUERY_IS_SECURE || aQueryOption == QUERY_IS_SAFE) {
       if (!m_URI) {
         CreateUri(pwzUrl, Uri_CREATE_CANONICALIZE, 0, &m_URI);
       }
