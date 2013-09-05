@@ -15,6 +15,7 @@ const GUID CTemporaryProtocolFolderHandler::CLSID =
 // FreeResources
 void CTemporaryProtocolFolderHandler::FreeResources()
 {
+  m_SpecialURLResource.clear();
   m_File.Close();
 }
 
@@ -64,6 +65,10 @@ HRESULT CTemporaryProtocolFolderHandler::InitializeRequest(
 STDMETHODIMP CTemporaryProtocolFolderHandler::Read(
   void *pv, ULONG cb, ULONG *pcbRead)
 {
+  if (m_SpecialURLResource.mData) {
+    // have a special URL
+    return m_SpecialURLResource.read(pv, cb, pcbRead);
+  }
   DWORD bytesRead = 0;
   HRESULT hr = m_File.Read(pv, cb, bytesRead);
   if (pcbRead)
@@ -91,6 +96,10 @@ STDMETHODIMP CTemporaryProtocolFolderHandler::UnlockRequest()
 STDMETHODIMP CTemporaryProtocolFolderHandler::Seek(
   LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition)
 {
+  if (m_SpecialURLResource.mData) {
+    // have a special URL
+    return m_SpecialURLResource.seek(dlibMove, dwOrigin, plibNewPosition);
+  }
   // simply forward to file
   IF_FAILED_RET(m_File.Seek(dlibMove.QuadPart, dwOrigin));
   if (plibNewPosition)

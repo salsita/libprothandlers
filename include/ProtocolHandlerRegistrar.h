@@ -61,7 +61,7 @@ public:
 
   //-------------------------------------------------------------------------
   // adds a URL where the content resides in memory.
-  static HRESULT AddURL(
+  static HRESULT AddResource(
     LPCWSTR lpszURL,
     LPCVOID lpData,
     DWORD dwLength,
@@ -93,8 +93,8 @@ private:
     LPCWSTR lpszHost);
 
   //-------------------------------------------------------------------------
-  // non static version of AddURL
-  HRESULT InternalAddURL(
+  // non static version of AddResource
+  HRESULT InternalAddResource(
     LPCWSTR lpszURL,
     LPCVOID lpData,
     DWORD dwLength,

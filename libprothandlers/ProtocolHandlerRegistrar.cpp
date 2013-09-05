@@ -85,41 +85,52 @@ HRESULT CProtocolHandlerRegistrar::UnregisterTemporaryResourceHandler(
 }
 
 //---------------------------------------------------------------------------
-// AddURL
-HRESULT CProtocolHandlerRegistrar::AddURL(
+// AddResource
+HRESULT CProtocolHandlerRegistrar::AddResource(
   LPCWSTR lpszURL,
   LPCVOID lpData,
   DWORD dwLength,
   LPCWSTR lpszMimeType)
 {
   return GetInstance().
-    InternalAddURL(lpszURL, lpData, dwLength, lpszMimeType);
+    InternalAddResource(lpszURL, lpData, dwLength, lpszMimeType);
 }
 
 //---------------------------------------------------------------------------
 // InternalAddURL
-HRESULT CProtocolHandlerRegistrar::InternalAddURL(
+HRESULT CProtocolHandlerRegistrar::InternalAddResource(
   LPCWSTR lpszURL,
   LPCVOID lpData,
   DWORD dwLength,
   LPCWSTR lpszMimeType)
 {
   // TODO: implement
-return E_NOTIMPL;
   CComPtr<IUri> pURI;
   IF_FAILED_RET(::CreateUri(lpszURL, Uri_CREATE_CANONICALIZE, 0, &pURI));
 
   CritSectLock lock(m_CriticalSection);
-  CComBSTR bsScheme;
-  IF_FAILED_RET(pURI->GetSchemeName(&bsScheme));
 
   CComPtr<IClassFactory> pClassFactory;
-  if (!m_ClassFactories.Lookup(bsScheme, pClassFactory))
+
+  CComBSTR scheme, host;
+  IF_FAILED_RET(pURI->GetSchemeName(&scheme));
+  IF_FAILED_RET(pURI->GetHost(&host));
+
+  // lookup class factory for lpszScheme
+  if (!m_ClassFactories.Lookup(scheme, pClassFactory))
   {
-    return E_FAIL;
+    // a protocol handler for this scheme has to be registered first!
+    return E_UNEXPECTED;
   }
 
-  return S_OK;
+  CComQIPtr<IProtocolMemoryResource> memoryResource(pClassFactory);
+  if (!memoryResource) {
+    // Class factory for this handler does not support memory based resources
+    return E_NOINTERFACE;
+  }
+
+  // add the URL
+  return memoryResource->AddResource(pURI, lpData, dwLength, lpszMimeType);
 }
 
 //---------------------------------------------------------------------------

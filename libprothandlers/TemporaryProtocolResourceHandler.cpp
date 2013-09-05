@@ -21,15 +21,16 @@ const GUID CTemporaryProtocolResourceHandler::CLSID =
 // FreeResources
 void CTemporaryProtocolResourceHandler::FreeResources()
 {
+  m_SpecialURLResource.clear();
   if (m_hGlobalResource)
   {
     FreeResource(m_hGlobalResource);
   }
   m_hrc = NULL;
   m_hGlobalResource = NULL;
-  m_lpData = NULL;
-  m_dwSize = 0;
-  m_CurrentPos = NULL;
+  mData = NULL;
+  mLength = 0;
+  mPos = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -38,8 +39,8 @@ HRESULT CTemporaryProtocolResourceHandler::FinalConstruct()
 {
   m_hrc = NULL;
   m_hGlobalResource = NULL;
-  m_lpData = NULL;
-  m_CurrentPos = m_dwSize = 0;
+  mData = NULL;
+  mPos = mLength = 0;
   return S_OK;
 }
 
@@ -75,9 +76,9 @@ HRESULT CTemporaryProtocolResourceHandler::InitializeRequest(
     return INET_E_OBJECT_NOT_FOUND;
   }
 
-  m_CurrentPos = 0;
-  m_dwSize = dwSize = SizeofResource(m_HostInfo.hResourceInstance, m_hrc);
-  m_lpData = (LPBYTE)LockResource(m_hGlobalResource);
+  mPos = 0;
+  mLength = dwSize = SizeofResource(m_HostInfo.hResourceInstance, m_hrc);
+  mData = (LPBYTE)LockResource(m_hGlobalResource);
   return S_OK;
 }
 
@@ -86,34 +87,11 @@ HRESULT CTemporaryProtocolResourceHandler::InitializeRequest(
 STDMETHODIMP CTemporaryProtocolResourceHandler::Read(
   void *pv, ULONG cb, ULONG *pcbRead)
 {
-  if(NULL == m_lpData)
-  {
-    return E_UNEXPECTED;
+  if (m_SpecialURLResource.mData) {
+    // have a special URL
+    return m_SpecialURLResource.read(pv, cb, pcbRead);
   }
-  size_t sz = m_dwSize;
-  if (m_CurrentPos >= sz)
-  {
-    return S_FALSE;
-  }
-
-  sz -= m_CurrentPos;
-  if (0 == sz)
-  {
-    return S_FALSE;
-  }
-
-  if (cb > sz)
-  {
-    cb = (ULONG)sz;
-  }
-  memcpy(pv, m_lpData + m_CurrentPos, cb);
-  m_CurrentPos += cb;
-  if (pcbRead)
-  {
-    *pcbRead = cb;
-  }
-
-  return S_OK;
+  return read(pv, cb, pcbRead);
 }
 
 //---------------------------------------------------------------------------
@@ -129,62 +107,9 @@ STDMETHODIMP CTemporaryProtocolResourceHandler::UnlockRequest()
 STDMETHODIMP CTemporaryProtocolResourceHandler::Seek(
   LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER *plibNewPosition)
 {
-  if (!m_lpData)
-  {
-    return E_UNEXPECTED;
+  if (m_SpecialURLResource.mData) {
+    // have a special URL
+    return m_SpecialURLResource.seek(dlibMove, dwOrigin, plibNewPosition);
   }
-  if (dlibMove.HighPart)
-  {
-    return E_INVALIDARG;
-  }
-
-  switch(dwOrigin)
-  {
-    case STREAM_SEEK_SET:
-      {
-        size_t newPos = dlibMove.LowPart;
-        if (newPos > m_dwSize)
-        {
-          return E_FAIL; // after EOF
-        }
-        m_CurrentPos = newPos;
-      }
-      break;
-    case STREAM_SEEK_CUR:
-      {
-        size_t ofs = dlibMove.LowPart;
-        if (ofs & 0x80000000)
-        {
-          // negative val
-          ofs &= 0x7fffffff;
-          if (ofs > m_CurrentPos)
-          {
-            return E_FAIL; // before SOF
-          }
-          m_CurrentPos -= ofs;
-        }
-        else
-        {
-          if ((ofs + m_CurrentPos) > m_dwSize)
-          {
-            return E_FAIL; // after EOF
-          }
-          m_CurrentPos += ofs;
-        }
-      }
-      break;
-    case STREAM_SEEK_END:
-      if (dlibMove.LowPart > m_dwSize)
-      {
-        return E_FAIL; // before SOF
-      }
-      m_CurrentPos = m_dwSize - dlibMove.LowPart;
-      break;
-  }
-  if (plibNewPosition)
-  {
-    plibNewPosition->HighPart = 0;
-    plibNewPosition->LowPart = (DWORD)m_CurrentPos;
-  }
-  return S_OK;
+  return seek(dlibMove, dwOrigin, plibNewPosition);
 }

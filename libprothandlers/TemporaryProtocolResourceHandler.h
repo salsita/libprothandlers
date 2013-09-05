@@ -26,6 +26,7 @@ typedef CTemporaryProtocolHandlerT
  *  This is the actual protocol handler.
  *****************************************************************************/
 class ATL_NO_VTABLE CTemporaryProtocolResourceHandler :
+  public SeekableBuffer,
   public CTemporaryProtocolResourceHandlerBase,
   public CComObjectRootEx<CComSingleThreadModel>
 {
@@ -86,13 +87,4 @@ private:
 
   // HGLOBAL for current resource
   HGLOBAL   m_hGlobalResource;
-
-  // Pointer to acutal data
-  LPBYTE    m_lpData;
-
-  // data size
-  ULONG     m_dwSize;
-
-  // Current read pos
-  size_t    m_CurrentPos;
 };

@@ -55,6 +55,43 @@ HRESULT CTemporaryProtocolFolderHandlerClassFactory::AddHost(
 }
 
 //---------------------------------------------------------------------------
+// AddResource
+STDMETHODIMP CTemporaryProtocolFolderHandlerClassFactory::AddResource(
+  IUri * aURI,
+  LPCVOID lpData,
+  DWORD dwLength,
+  LPCWSTR lpszMimeType)
+{
+  CritSectLock lock(m_CriticalSection);
+  if (!aURI) {
+    return E_INVALIDARG;
+  }
+  CComBSTR url;
+  IF_FAILED_RET(aURI->GetAbsoluteUri(&url));
+  mSpecialURLs[url].setData(lpData, dwLength, lpszMimeType);
+  return S_OK;
+}
+
+//---------------------------------------------------------------------------
+// GetResource
+STDMETHODIMP CTemporaryProtocolFolderHandlerClassFactory::GetResource(IUri * aURI, URLMemoryResource & aRetBuffer)
+{
+  CritSectLock lock(m_CriticalSection);
+  if (!aURI) {
+    return E_INVALIDARG;
+  }
+  CComBSTR url;
+  IF_FAILED_RET(aURI->GetAbsoluteUri(&url));
+  CAtlMap<CStringW, URLMemoryResource>::CPair * entry = mSpecialURLs.Lookup(url);
+  if (!entry) {
+    return E_FAIL;
+  }
+  aRetBuffer.copyFrom(entry->m_value);
+
+  return S_OK;
+}
+
+//---------------------------------------------------------------------------
 // InitHandler
 HRESULT CTemporaryProtocolFolderHandlerClassFactory::InitHandler(
   CTemporaryProtocolFolderHandler * pHandler)

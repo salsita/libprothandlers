@@ -15,6 +15,7 @@ include_directories(${${PROJECT_NAME}_INC_DIR})
 set(${PROJECT_NAME}_HEADERS
   "${${PROJECT_NAME}_INC_DIR}/ProtocolHandlerRegistrar.h"
   "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/stdafx.h"
+  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/Buffer.h"
   "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolFolderHandler.h"
   "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolFolderHandlerClassFactory.h"
   "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolHandlerClassFactoryT.h"
@@ -26,6 +27,7 @@ set(${PROJECT_NAME}_HEADERS
 set(${PROJECT_NAME}_SOURCES
   "${${PROJECT_NAME}_SRC_DIR}/ProtocolHandlerRegistrar.cpp"
   "${${PROJECT_NAME}_SRC_DIR}/stdafx.cpp"
+  "${${PROJECT_NAME}_SRC_DIR}/Buffer.cpp"
   "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolFolderHandler.cpp"
   "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolFolderHandlerClassFactory.cpp"
   "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolResourceHandler.cpp"

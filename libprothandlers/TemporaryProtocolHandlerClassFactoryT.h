@@ -3,6 +3,27 @@
 #include <atlcoll.h>
 
 /*****************************************************************************
+ * Interface IProtocolMemoryResource
+ *  Adds support for special URLs - URLs that don't exist pysically.
+ *  The data for these resources comes directly from a memory buffer.
+ *****************************************************************************/
+MIDL_INTERFACE("D3C4D0CB-DEC9-4529-8DDD-8F441E76D584")
+IProtocolMemoryResource : public IUnknown
+{
+public:
+    STDMETHOD(AddResource)(
+        IUri * aURI,
+        LPCVOID lpData,
+        DWORD dwLength,
+        LPCWSTR lpszMimeType) PURE;
+
+    STDMETHOD(GetResource)(
+        IUri * aUri,
+        URLMemoryResource & aRetBuffer) PURE;
+
+};
+
+/*****************************************************************************
  * class CTemporaryProtocolHandlerClassFactoryT
  *  Implements IClassFactory.
  *  Creates instances of CTemporaryProtocolFolderHandler.
@@ -139,3 +160,4 @@ private:
   // map for registered hosts: maps a host name to a HostInfo
   CAtlMap<CStringW, HI> m_HostInfos;
 };
+

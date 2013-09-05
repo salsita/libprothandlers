@@ -18,6 +18,7 @@
 #include <atlcom.h>
 
 #include <wininet.h>
+#include "Buffer.h"
 
 #ifndef IF_FAILED_RET
 #define IF_FAILED_RET(_hr) \

@@ -13,7 +13,8 @@ class ATL_NO_VTABLE CTemporaryProtocolFolderHandlerClassFactory :
         <CTemporaryProtocolFolderHandlerClassFactory,
          CTemporaryProtocolFolderHandler,
           FolderHandlerHostInfo>,
-  public CComObjectRootEx<CComSingleThreadModel>
+  public CComObjectRootEx<CComSingleThreadModel>,
+  public IProtocolMemoryResource
 {
 public:
   friend class CProtocolHandlerRegistrar;
@@ -25,6 +26,7 @@ public:
 
   BEGIN_COM_MAP(CTemporaryProtocolFolderHandlerClassFactory)
     COM_INTERFACE_ENTRY(IClassFactory)
+    COM_INTERFACE_ENTRY(IProtocolMemoryResource)
   END_COM_MAP()
 
   HRESULT FinalConstruct();
@@ -36,6 +38,17 @@ public:
   // protocol handler instance to allow initialization
   HRESULT InitHandler(CTemporaryProtocolFolderHandler * pHandler);
 
+  // IProtocolMemoryResource
+  STDMETHOD(AddResource)(
+      IUri * aURI,
+      LPCVOID lpData,
+      DWORD dwLength,
+      LPCWSTR lpszMimeType);
+
+  STDMETHOD(GetResource)(
+      IUri * aUri,
+      URLMemoryResource & aRetBuffer);
+
 protected:
   // called from CProtocolHandlerRegistrar
   // adds a host with the host name and a folder name to load the resources
@@ -43,5 +56,12 @@ protected:
   HRESULT AddHost(
     LPCWSTR   lpszHost,
     LPCWSTR   lpszFolderName);
+
+private:
+  //----------------------------------------------------------------------------
+  // private data members
+
+  // map for special URLs
+  CAtlMap<CStringW, URLMemoryResource> mSpecialURLs;
 
 };

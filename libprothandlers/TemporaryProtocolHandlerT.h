@@ -116,7 +116,15 @@ public:
 
     // let derived class init the request
     DWORD sz = 0;
-    IF_FAILED_RET(static_cast<T*>(this)->InitializeRequest(sPath, sz));
+    m_SpecialURLResource.clear();
+    CComQIPtr<IProtocolMemoryResource> memoryResource(m_pFactory);
+    if (memoryResource && SUCCEEDED(memoryResource->GetResource(m_URI, m_SpecialURLResource))) {
+      sz = m_SpecialURLResource.mLength;
+    }
+    else {
+      m_SpecialURLResource.clear(); // make sure we don't have stale data
+      IF_FAILED_RET(static_cast<T*>(this)->InitializeRequest(sPath, sz));
+    }
 
     // serve the request to pOIProtSink
     pOIProtSink->ReportProgress(BINDSTATUS_FINDINGRESOURCE, L"Found");
@@ -355,5 +363,10 @@ protected:
 
   // current HostInfo
   HI  m_HostInfo;
+  // current URI
   CComPtr<IUri> m_URI;
+
+  // For special URLs: current buffer. Empty if no special URL
+  // is given for the current request
+  URLMemoryResource  m_SpecialURLResource;
 };
