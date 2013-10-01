@@ -6,32 +6,46 @@ set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "Reset
 
 #Variables describing project layout
 set(${PROJECT_NAME}_INC_DIR "${${PROJECT_NAME}_SOURCE_DIR}/include" CACHE PATH "Path to ${PROJECT_NAME} include directory")
-set(${PROJECT_NAME}_SRC_DIR "${${PROJECT_NAME}_SOURCE_DIR}/libprothandlers")
+set(${PROJECT_NAME}_SRC_DIR_PROT_HANDLER "${${PROJECT_NAME}_SOURCE_DIR}/libprothandlers")
+set(${PROJECT_NAME}_SRC_DIR_PROT_PATCH "${${PROJECT_NAME}_SOURCE_DIR}/ProtocolPatch")
 
-set(_${PROJECT_NAME}_INTERNAL_INC_DIR ${${PROJECT_NAME}_SRC_DIR})
-
-include_directories(${${PROJECT_NAME}_INC_DIR})
+include_directories(
+  BEFORE
+  ${${PROJECT_NAME}_SOURCE_DIR}
+  ${${PROJECT_NAME}_INC_DIR}
+  ${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}
+  ${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}
+)
 
 set(${PROJECT_NAME}_HEADERS
   "${${PROJECT_NAME}_INC_DIR}/ProtocolHandlerRegistrar.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/stdafx.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/Buffer.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolFolderHandler.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolFolderHandlerClassFactory.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolHandlerClassFactoryT.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolHandlerT.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolResourceHandler.h"
-  "${_${PROJECT_NAME}_INTERNAL_INC_DIR}/TemporaryProtocolResourceHandlerClassFactory.h"
+  "${${PROJECT_NAME}_SOURCE_DIR}/stdafx.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/Buffer.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolFolderHandler.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolFolderHandlerClassFactory.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolHandlerClassFactoryT.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolHandlerT.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolResourceHandler.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolResourceHandlerClassFactory.h"
+
+  "${${PROJECT_NAME}_INC_DIR}/ProtocolPatch.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}/GlobalMap.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}/IInternetProtocolExPatch.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}/Protocol.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}/Scheme.h"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}/URLMonPatchBase.h"
   )
 
 set(${PROJECT_NAME}_SOURCES
-  "${${PROJECT_NAME}_SRC_DIR}/ProtocolHandlerRegistrar.cpp"
-  "${${PROJECT_NAME}_SRC_DIR}/stdafx.cpp"
-  "${${PROJECT_NAME}_SRC_DIR}/Buffer.cpp"
-  "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolFolderHandler.cpp"
-  "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolFolderHandlerClassFactory.cpp"
-  "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolResourceHandler.cpp"
-  "${${PROJECT_NAME}_SRC_DIR}/TemporaryProtocolResourceHandlerClassFactory.cpp"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/ProtocolHandlerRegistrar.cpp"
+  "${${PROJECT_NAME}_SOURCE_DIR}/stdafx.cpp"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/Buffer.cpp"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolFolderHandler.cpp"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolFolderHandlerClassFactory.cpp"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolResourceHandler.cpp"
+  "${${PROJECT_NAME}_SRC_DIR_PROT_HANDLER}/TemporaryProtocolResourceHandlerClassFactory.cpp"
+
+  "${${PROJECT_NAME}_SRC_DIR_PROT_PATCH}/ProtocolPatch.cpp"
   )
 
 ################# MAIN TARGET SETUP #########################
