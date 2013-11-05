@@ -16,7 +16,7 @@ template<class T, class CF, class HI> class CTemporaryProtocolHandlerT :
 public:
   //----------------------------------------------------------------------------
   // CTOR / DTOR
-  CTemporaryProtocolHandlerT() : m_pFactory(NULL)
+  CTemporaryProtocolHandlerT() : m_pFactory(NULL), m_AddDoctype(FALSE)
   {
   }
 
@@ -130,7 +130,25 @@ public:
     pOIProtSink->ReportProgress(BINDSTATUS_FINDINGRESOURCE, L"Found");
     pOIProtSink->ReportProgress(BINDSTATUS_CONNECTING, L"Connecting");
     pOIProtSink->ReportProgress(BINDSTATUS_SENDINGREQUEST, L"Sending");
+/*
+    if (0) {
+      CComQIPtr<IServiceProvider> provider(pOIProtSink);
+      if (provider) {
+        CComPtr<IHttpNegotiate> negotiate;
+        provider->QueryService(IID_IHttpNegotiate, IID_IHttpNegotiate, (void**)&negotiate.p);
+        if (negotiate) {
+          CString hdrs;
+          hdrs.Format(_T("HTTP/1.1 200 OK\r\nContent-Type: %s\r\nX-UA-Compatible: IE=edge\r\n\r\n"), sMime);
+          negotiate->OnResponse(200, hdrs, L"", NULL);
+        }
+      }
+    }
+*/
     pOIProtSink->ReportProgress(BINDSTATUS_VERIFIEDMIMETYPEAVAILABLE, sMime);
+    if (sMime == _T("text/html")) {
+      sz += strlen(doctype);
+      m_AddDoctype = TRUE;
+    }
     pOIProtSink->ReportData(BSCF_FIRSTDATANOTIFICATION, 0, sz);
     pOIProtSink->ReportData(BSCF_LASTDATANOTIFICATION | BSCF_DATAFULLYAVAILABLE, sz, sz);
 
@@ -298,6 +316,7 @@ public:
   }
 
 protected:
+  static LPCSTR doctype;
   //-------------------------------------------------------------------------
   // called from CTemporaryProtocolResourceHandlerClassFactory
   // initializes the instance with the protocol string, the host name
@@ -369,4 +388,7 @@ protected:
   // For special URLs: current buffer. Empty if no special URL
   // is given for the current request
   URLMemoryResource  m_SpecialURLResource;
+  BOOL m_AddDoctype;
 };
+
+template<class T, class CF, class HI> LPCSTR CTemporaryProtocolHandlerT<T, CF, HI>::doctype = "<!DOCTYPE html>\n";

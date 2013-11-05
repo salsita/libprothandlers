@@ -69,11 +69,26 @@ STDMETHODIMP CTemporaryProtocolFolderHandler::Read(
     // have a special URL
     return m_SpecialURLResource.read(pv, cb, pcbRead);
   }
+  if (pcbRead) {
+    (*pcbRead) = 0;
+  }
+
+  if (m_AddDoctype) {
+    size_t doctypeLength = strlen(doctype);
+    ATLASSERT(cb > doctypeLength);
+    memcpy(pv, doctype, doctypeLength);
+    if (pcbRead) {
+      (*pcbRead) += doctypeLength;
+    }
+    cb -= doctypeLength;
+    pv = (LPBYTE)pv + doctypeLength;
+    m_AddDoctype = FALSE;
+  }
+
   DWORD bytesRead = 0;
   HRESULT hr = m_File.Read(pv, cb, bytesRead);
-  if (pcbRead)
-  {
-    (*pcbRead) = bytesRead;
+  if (pcbRead) {
+    (*pcbRead) += bytesRead;
   }
   if (FAILED(hr)) {
     return hr;
